@@ -42,7 +42,7 @@ public void borrarDetalle(DetalleFactura detalle) {
 }
 @Override
 public List <DetalleFactura> obtenerDetalles(){
-	TypedQuery<DetalleFactura> query = manager.createQuery("SELECT e FROM Factura e", DetalleFactura.class);
+	TypedQuery<DetalleFactura> query = manager.createQuery("SELECT e FROM DetalleFactura e", DetalleFactura.class);
 	List<DetalleFactura> detalles = query.getResultList();
 	return detalles;
 }

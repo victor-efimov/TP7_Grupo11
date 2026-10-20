@@ -2,6 +2,7 @@ package ar.edu.unju.escmi.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "facturas")
@@ -13,16 +14,20 @@ public class Factura {
     private Long id;
 	
 	private LocalDate fecha;
+	@ManyToOne
+	@JoinColumn(name = "cliente_id")
 	private Cliente cliente;
 	private String domicilio;
 	private double total;
 	private boolean estado;
-	private DetalleFactura detalle;
+	@OneToMany
+	@JoinColumn(name = "factura_id")
+	private List<DetalleFactura> detalles;
 	
 	public Factura() {}
 	
 	public Factura(Long id, LocalDate fecha, Cliente cliente, String domicilio, double total, boolean estado,
-			DetalleFactura detalle) {
+			List<DetalleFactura> detalles) {
 		super();
 		this.id = id;
 		this.fecha = fecha;
@@ -30,7 +35,7 @@ public class Factura {
 		this.domicilio = domicilio;
 		this.total = total;
 		this.estado = estado;
-		this.detalle = detalle;
+		this.detalles = detalles;
 	}
 
 
@@ -78,14 +83,9 @@ public class Factura {
 	public void setEstado(boolean estado) {
 		this.estado = estado;
 	}
-
-	public DetalleFactura getDetalle() {
-		return detalle;
-	}
-
-	public void setDetalle(DetalleFactura detalle) {
-		this.detalle = detalle;
-	}
+	public List<DetalleFactura> getDetalles() { return detalles; }
+	public void setDetalles(List<DetalleFactura> detalles) {
+		this.detalles = detalles; }
 
 	public int calcularTotal() {
 		return 0;

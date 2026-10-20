@@ -10,7 +10,9 @@ public class DetalleFactura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private Producto producto;
+	@ManyToOne
+    @JoinColumn(name = "producto_id")
+    private Producto producto;
 	private int cantidad;
 	private double subtotal;
 	

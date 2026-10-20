@@ -42,7 +42,7 @@ public void borrarProducto(Producto producto) {
 }
 @Override
 public List <Producto> obtenerProductos(){
-	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Factura e", Producto.class);
+	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e", Producto.class);
 	List<Producto> productos = query.getResultList();
 	return productos;
 }

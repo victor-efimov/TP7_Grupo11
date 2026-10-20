@@ -42,7 +42,7 @@ public void borrarCliente(Cliente cliente) {
 }
 @Override
 public List <Cliente> obtenerClientes(){
-	TypedQuery<Cliente> query = manager.createQuery("SELECT e FROM Factura e", Cliente.class);
+	TypedQuery<Cliente> query = manager.createQuery("SELECT e FROM Cliente c", Cliente.class);
 	List<Cliente> clientes = query.getResultList();
 	return clientes;
 }
