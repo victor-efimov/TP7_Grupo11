@@ -29,7 +29,7 @@ public void guardarProducto(Producto producto) {
 public void borrarProducto(Producto producto) {
 	try {
 		manager.getTransaction().begin();
-		manager.remove(producto);
+		producto.setEstado(false);
 		manager.getTransaction().commit();
 	}catch (Exception e) {
 		if (manager.getTransaction()!=null) {
@@ -42,7 +42,7 @@ public void borrarProducto(Producto producto) {
 }
 @Override
 public List <Producto> obtenerProductos(){
-	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e", Producto.class);
+	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e AND e.estado = true", Producto.class);
 	List<Producto> productos = query.getResultList();
 	return productos;
 }

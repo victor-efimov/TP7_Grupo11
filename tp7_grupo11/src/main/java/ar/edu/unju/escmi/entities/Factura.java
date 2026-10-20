@@ -40,6 +40,12 @@ public class Factura {
 
 
 
+	@Override
+	public String toString() {
+		return "Factura [id=" + id + ", fecha=" + fecha + ", cliente=" + cliente + ", domicilio=" + domicilio
+				+ ", total=" + total + ", estado=" + estado + ", detalles=" + detalles + "]";
+	}
+
 	public Long getId() {
 		return id;
 	}

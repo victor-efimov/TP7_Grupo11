@@ -29,7 +29,7 @@ public void guardarCliente(Cliente cliente) {
 public void borrarCliente(Cliente cliente) {
 	try {
 		manager.getTransaction().begin();
-		manager.remove(cliente);
+		cliente.setEstado(false);
 		manager.getTransaction().commit();
 	}catch (Exception e) {
 		if (manager.getTransaction()!=null) {
@@ -42,7 +42,7 @@ public void borrarCliente(Cliente cliente) {
 }
 @Override
 public List <Cliente> obtenerClientes(){
-	TypedQuery<Cliente> query = manager.createQuery("SELECT e FROM Cliente c", Cliente.class);
+	TypedQuery<Cliente> query = manager.createQuery("SELECT c FROM Cliente c AND c.estado = true", Cliente.class);
 	List<Cliente> clientes = query.getResultList();
 	return clientes;
 }

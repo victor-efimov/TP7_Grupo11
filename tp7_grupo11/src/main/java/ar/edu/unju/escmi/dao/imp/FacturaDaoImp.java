@@ -29,7 +29,7 @@ public void guardarFactura(Factura factura) {
 public void borrarFactura(Factura factura) {
 	try {
 		manager.getTransaction().begin();
-		manager.remove(factura);
+		factura.setEstado(false);
 		manager.getTransaction().commit();
 	}catch (Exception e) {
 		if (manager.getTransaction()!=null) {
@@ -41,8 +41,19 @@ public void borrarFactura(Factura factura) {
 	}
 }
 @Override
+public Factura buscarFactura(Long id) {
+return manager.find(Factura.class, id);
+}
+@Override
 public List <Factura> obtenerFacturas(){
-	TypedQuery<Factura> query = manager.createQuery("SELECT e FROM Factura e", Factura.class);
+	TypedQuery<Factura> query = manager.createQuery("SELECT f FROM Factura f AND f.estado = true", Factura.class);
+	List<Factura> facturas = query.getResultList();
+	return facturas;
+}
+
+@Override
+public List <Factura> obtenerFacturas900(){
+	TypedQuery<Factura> query = manager.createQuery("SELECT f FROM Factura f WHERE f.total > 900000 AND f.estado = true", Factura.class);
 	List<Factura> facturas = query.getResultList();
 	return facturas;
 }
