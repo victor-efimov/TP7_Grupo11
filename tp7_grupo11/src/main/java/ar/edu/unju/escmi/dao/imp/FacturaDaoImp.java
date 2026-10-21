@@ -46,7 +46,7 @@ return manager.find(Factura.class, id);
 }
 @Override
 public List <Factura> obtenerFacturas(){
-	TypedQuery<Factura> query = manager.createQuery("SELECT f FROM Factura f AND f.estado = true", Factura.class);
+	TypedQuery<Factura> query = manager.createQuery("SELECT f FROM Factura f WHERE f.estado = true", Factura.class);
 	List<Factura> facturas = query.getResultList();
 	return facturas;
 }

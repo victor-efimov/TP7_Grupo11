@@ -8,5 +8,5 @@ public interface IProductoDao {
 	public void guardarProducto(Producto productos);
 	public void borrarProducto(Producto producto);
 	public List <Producto> obtenerProductos();
-	
+	public void modificarPrecio(double precio);
 }

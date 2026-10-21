@@ -42,8 +42,16 @@ public void borrarProducto(Producto producto) {
 }
 @Override
 public List <Producto> obtenerProductos(){
-	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e AND e.estado = true", Producto.class);
+	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e WHERE e.estado = true", Producto.class);
 	List<Producto> productos = query.getResultList();
 	return productos;
+}
+@Override
+public void modificarPrecio (double precio) {
+	try {
+		
+	}finally {
+		
+	}
 }
 }

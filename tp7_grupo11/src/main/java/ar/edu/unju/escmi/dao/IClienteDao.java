@@ -8,5 +8,6 @@ public interface IClienteDao {
 	public void guardarCliente(Cliente cliente);
 	public void borrarCliente(Cliente cliente);
 	public List <Cliente> obtenerClientes();
+	public void modificarCliente(Long mod);
 	
 }
