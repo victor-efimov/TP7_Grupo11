@@ -3,29 +3,30 @@ package ar.edu.unju.escmi.entities;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "facturas")
 
 public class Factura {
-	
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-	
-	private LocalDate fecha;
+
+	private LocalDate fecha = LocalDate.now();
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
 	private Cliente cliente;
 	private String domicilio;
 	private double total;
-	private boolean estado;
-	@OneToMany
+	private boolean estado = true;
+	@OneToMany(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "factura_id")
-	private List<DetalleFactura> detalles;
-	
+	private List<DetalleFactura> detalles = new ArrayList<>();
+
 	public Factura() {}
-	
+
 	public Factura(Long id, LocalDate fecha, Cliente cliente, String domicilio, double total, boolean estado,
 			List<DetalleFactura> detalles) {
 		super();
@@ -93,8 +94,22 @@ public class Factura {
 	public void setDetalles(List<DetalleFactura> detalles) {
 		this.detalles = detalles; }
 
-	public int calcularTotal() {
-		return 0;
-	}
+	public double calcularTotal() {
+        if (detalles == null || detalles.isEmpty()) {
+            throw new IllegalArgumentException("La factura debe tener al menos un detalle.");
+        }
+        double suma = 0;
+        for (DetalleFactura detalle : detalles) {
+            if (detalle == null || !Double.isFinite(detalle.getSubtotal()) || detalle.getSubtotal() <= 0) {
+                throw new IllegalArgumentException("Los subtotales deben ser positivos y finitos.");
+            }
+            suma += detalle.getSubtotal();
+        }
+        if (!Double.isFinite(suma)) {
+            throw new IllegalArgumentException("El total excede el valor permitido.");
+        }
+        total = suma;
+        return total;
+    }
 }
 

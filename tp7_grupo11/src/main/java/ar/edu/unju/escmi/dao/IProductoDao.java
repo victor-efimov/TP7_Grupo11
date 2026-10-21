@@ -4,9 +4,9 @@ import java.util.List;
 import ar.edu.unju.escmi.entities.Producto;
 
 public interface IProductoDao {
-	
+
 	public void guardarProducto(Producto productos);
 	public void borrarProducto(Producto producto);
 	public List <Producto> obtenerProductos();
-	public void modificarPrecio(double precio);
+	public void modificarPrecio(Long idProducto, double nuevoPrecio);
 }

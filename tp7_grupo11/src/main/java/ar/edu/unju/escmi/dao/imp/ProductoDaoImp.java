@@ -2,56 +2,65 @@ package ar.edu.unju.escmi.dao.imp;
 
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import ar.edu.unju.escmi.entities.Producto;
 import ar.edu.unju.escmi.config.EmfSingleton;
 import ar.edu.unju.escmi.dao.IProductoDao;
+import ar.edu.unju.escmi.entities.*;
 
 public class ProductoDaoImp implements IProductoDao {
-	private static EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+    @Override
+    public void guardarProducto(Producto producto) {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            manager.persist(producto);
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo guardar producto.", e);
+        } finally {
+            manager.close();
+        }
+    }
 
-@Override
-public void guardarProducto(Producto producto) {
-	try {
-		manager.getTransaction().begin();
-		manager.persist(producto);
-		manager.getTransaction().commit();
-	}catch(Exception e) {
-		if (manager.getTransaction()!=null) {
-			manager.getTransaction().rollback();
-		}
-		System.out.println("No se pudo guardar el detalle");
-	} finally {
-		//manager.close();
-	}
-}
-@Override
-public void borrarProducto(Producto producto) {
-	try {
-		manager.getTransaction().begin();
-		producto.setEstado(false);
-		manager.getTransaction().commit();
-	}catch (Exception e) {
-		if (manager.getTransaction()!=null) {
-			manager.getTransaction().rollback();
-		}
-		System.out.println("No se pudo borrar la factura");
-	}finally {
-		//manager.close();
-	}
-}
-@Override
-public List <Producto> obtenerProductos(){
-	TypedQuery<Producto> query = manager.createQuery("SELECT e FROM Producto e WHERE e.estado = true", Producto.class);
-	List<Producto> productos = query.getResultList();
-	return productos;
-}
-@Override
-public void modificarPrecio (double precio) {
-	try {
-		
-	}finally {
-		
-	}
-}
+    @Override
+    public void borrarProducto(Producto producto) {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            if (producto == null || producto.getId() == null) {
+                throw new IllegalArgumentException("Debe seleccionar un registro existente.");
+            }
+            Producto existente = manager.find(Producto.class, producto.getId());
+            if (existente == null) {
+                throw new IllegalArgumentException("No se encontró el registro.");
+            }
+            existente.setEstado(false);
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo borrar producto.", e);
+        } finally {
+            manager.close();
+        }
+    }
+
+    @Override
+    public List<Producto> obtenerProductos() {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            return manager.createQuery("SELECT e FROM Producto e WHERE e.estado = true", Producto.class).getResultList();
+        } finally {
+            manager.close();
+        }
+    }
+
+    @Override
+    public void modificarPrecio(Long idProducto, double nuevoPrecio) {
+        // Pendiente: implementar la modificación del precio del producto.
+        throw new UnsupportedOperationException("Modificación de precio pendiente de implementación.");
+    }
 }

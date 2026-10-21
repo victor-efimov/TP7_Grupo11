@@ -2,110 +2,87 @@ package ar.edu.unju.escmi.dao.imp;
 
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import ar.edu.unju.escmi.entities.Cliente;
 import ar.edu.unju.escmi.config.EmfSingleton;
 import ar.edu.unju.escmi.dao.IClienteDao;
-import java.util.Scanner;
+import ar.edu.unju.escmi.entities.*;
 
 public class ClienteDaoImp implements IClienteDao {
-	private static EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
-	Scanner sc = new Scanner(System.in);
-@Override
-public void guardarCliente(Cliente cliente) {
-	try {
-		manager.getTransaction().begin();
-		manager.persist(cliente);
-		manager.getTransaction().commit();
-	}catch(Exception e) {
-		if (manager.getTransaction()!=null) {
-			manager.getTransaction().rollback();
-		}
-		System.out.println("No se pudo guardar el detalle");
-	} finally {
-		//manager.close();
-	}
-}
-@Override
-public void borrarCliente(Cliente cliente) {
-	try {
-		manager.getTransaction().begin();
-		cliente.setEstado(false);
-		manager.getTransaction().commit();
-	}catch (Exception e) {
-		if (manager.getTransaction()!=null) {
-			manager.getTransaction().rollback();
-		}
-		System.out.println("No se pudo borrar la factura");
-	}finally {
-		//manager.close();
-	}
-}
-@Override
-public List <Cliente> obtenerClientes(){
-	TypedQuery<Cliente> query = manager.createQuery("SELECT c FROM Cliente c WHERE c.estado = true", Cliente.class);
-	List<Cliente> clientes = query.getResultList();
-	return clientes;
-}
-@Override
-public void modificarCliente(Long mod) {
-	int op;
-	Cliente buscado = null;
-	buscado = manager.find(Cliente.class, mod);
-	if (buscado == null) {
-		System.out.println("No se encontro el cliente");
-	}
-	else {
-		System.out.println("Que dato desea modificar del cliente: " + buscado.getNombre() + " " + buscado.getApellido());
-		System.out.println("1: Nombre");
-		System.out.println("2: Apellido");
-		System.out.println("3: DNI");
-		System.out.println("4: Domicilio");
-		op=leerNumero(sc);
-		try {
-		manager.getTransaction().begin();
-		switch (op) {
-		case 1:
-			System.out.println("Ingrese nuevo Nombre:");
-			buscado.setNombre(sc.nextLine());
-		break;
-		case 2:
-            System.out.println("Ingrese nuevo Apellido:");
-            buscado.setApellido(sc.nextLine());
-            break;
-        case 3:
-            System.out.println("Ingrese nuevo DNI:");
-            buscado.setDni(leerNumero(sc));
-            break;
-        case 4:
-            System.out.println("Ingrese nuevo Domicilio:");
-            buscado.setDomicilio(sc.nextLine());
-            break;
-        default:
-            System.out.println("Opcion invalida");
-            manager.getTransaction().rollback();
-            return; 
-		}
-		 manager.merge(buscado);
-         manager.getTransaction().commit();
-         System.out.println("Cliente modificado correctamente");
-		}catch(Exception e) {
-			if (manager.getTransaction()!=null) {
-				manager.getTransaction().rollback();
-			}
-			System.out.println("No se pudo modificar el cliente");
-		}finally {
-			sc.close();
-			//manager.close();
-		}
-	}
-}
-private static int leerNumero(Scanner sc) {
-    String entrada = sc.nextLine();
-    try {
-        return  Integer.parseInt(entrada);
-    } catch (NumberFormatException e) {
-        throw new IllegalArgumentException("Debe ingresar un número entero válido.");
+    @Override
+    public void guardarCliente(Cliente cliente) {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            manager.persist(cliente);
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo guardar cliente.", e);
+        } finally {
+            manager.close();
+        }
     }
-}
+
+    @Override
+    public void borrarCliente(Cliente cliente) {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            if (cliente == null || cliente.getId() == null) {
+                throw new IllegalArgumentException("Debe seleccionar un registro existente.");
+            }
+            Cliente existente = manager.find(Cliente.class, cliente.getId());
+            if (existente == null) {
+                throw new IllegalArgumentException("No se encontró el registro.");
+            }
+            existente.setEstado(false);
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo borrar cliente.", e);
+        } finally {
+            manager.close();
+        }
+    }
+
+    @Override
+    public List<Cliente> obtenerClientes() {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            return manager.createQuery("SELECT e FROM Cliente e WHERE e.estado = true", Cliente.class).getResultList();
+        } finally {
+            manager.close();
+        }
+    }
+
+    @Override
+    public void modificarCliente(Cliente cliente) {
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            if (cliente == null || cliente.getId() == null) {
+                throw new IllegalArgumentException("Debe seleccionar un cliente existente.");
+            }
+            Cliente existente = manager.find(Cliente.class, cliente.getId());
+            if (existente == null || !existente.isEstado()) {
+                throw new IllegalArgumentException("El cliente no existe o está dado de baja.");
+            }
+            existente.setNombre(cliente.getNombre());
+            existente.setApellido(cliente.getApellido());
+            existente.setDni(cliente.getDni());
+            existente.setDomicilio(cliente.getDomicilio());
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo modificar el cliente.", e);
+        } finally {
+            manager.close();
+        }
+    }
+
 }

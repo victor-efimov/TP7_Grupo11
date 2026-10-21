@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
-import ar.edu.unju.escmi.dao.IDetalleDao;
-import ar.edu.unju.escmi.dao.imp.DetalleDaoImp;
+import ar.edu.unju.escmi.config.EmfSingleton;
 import ar.edu.unju.escmi.dao.IClienteDao;
 import ar.edu.unju.escmi.dao.IFacturaDao;
 import ar.edu.unju.escmi.dao.IProductoDao;
@@ -25,75 +24,84 @@ public class Main {
     private static IClienteDao clienteDao = new ClienteDaoImp();
     private static IProductoDao productoDao = new ProductoDaoImp();
     private static IFacturaDao facturaDao = new FacturaDaoImp();
-    private static IDetalleDao detalleDao = new DetalleDaoImp();
     public static void main(String[] args) {
-        int opcion = 0;
+        int opcion = -1;
 
-        do {
-            mostrarMenu();
-            try {
-                System.out.print("Seleccione una opción: ");
-                opcion = Integer.parseInt(scanner.nextLine());
+        try {
+            do {
+                mostrarMenu();
+                try {
+                    System.out.print("Seleccione una opción: ");
+                    if (!scanner.hasNextLine()) {
+                        break;
+                    }
+                    opcion = Integer.parseInt(scanner.nextLine().trim());
 
-                switch (opcion) {
-                    case 1:
-                        altaCliente();
-                        break;
-                    case 2:
-                        altaProducto();
-                        break;
-                    case 3:
-                        realizarVenta();
-                        break;
-                    case 4:
-                        buscarFacturaPorId();
-                        break;
-                    case 5:
-                        
-                        System.out.println("Opción 5 pendiente de implementación.");
-                        break;
-                    case 6:
-                        
-                        System.out.println("Opción 6 pendiente de implementación.");
-                        break;
-                    case 7:
-                        
-                        System.out.println("Opción 7 pendiente de implementación.");
-                        break;
-                    case 8:
-                        
-                        System.out.println("Opción 8 pendiente de implementación.");
-                        break;
-                    case 9:
-                        
-                        System.out.println("Opción 9 pendiente de implementación.");
-                        break;
-                    case 10:
-                        
-                        System.out.println("Opción 10 pendiente de implementación.");
-                        break;
-                    case 11:
-                        
-                        System.out.println("Opción 11 pendiente de implementación.");
-                        break;
-                    case 12:
-                        
-                        System.out.println("Opción 12 pendiente de implementación.");
-                        break;
-                    case 0:
-                        System.out.println("Saliendo del sistema...");
-                        break;
-                    default:
-                        System.out.println("Opción inválida. Ingrese un número entre 0 y 12.");
+                    switch (opcion) {
+                        case 1:
+                            altaCliente();
+                            break;
+                        case 2:
+                            altaProducto();
+                            break;
+                        case 3:
+                            realizarVenta();
+                            break;
+                        case 4:
+                            buscarFacturaPorId();
+                            break;
+                        case 5:
+
+                            System.out.println("Opción 5 pendiente de implementación.");
+                            break;
+                        case 6:
+
+                            System.out.println("Opción 6 pendiente de implementación.");
+                            break;
+                        case 7:
+
+                            System.out.println("Opción 7 pendiente de implementación.");
+                            break;
+                        case 8:
+
+                            System.out.println("Opción 8 pendiente de implementación.");
+                            break;
+                        case 9:
+
+                            System.out.println("Opción 9 pendiente de implementación.");
+                            break;
+                        case 10:
+
+                            System.out.println("Opción 10 pendiente de implementación.");
+                            break;
+                        case 11:
+
+                            System.out.println("Opción 11 pendiente de implementación.");
+                            break;
+                        case 12:
+
+                            System.out.println("Opción 12 pendiente de implementación.");
+                            break;
+                        case 0:
+                            System.out.println("Saliendo del sistema...");
+                            break;
+                        default:
+                            System.out.println("Opción inválida. Ingrese un número entre 0 y 12.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: Debe ingresar un número entero válido.");
+                } catch (Exception e) {
+                    System.out.println("Ocurrió un error inesperado: " + e.getMessage());
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Debe ingresar un número entero válido.");
-            } catch (Exception e) {
-                System.out.println("Ocurrió un error inesperado: " + e.getMessage());
-            }
-        } while (opcion != 0);
+            } while (opcion != 0);
 
-        scanner.close();
+        } finally {
+            try {
+                EmfSingleton.getInstance().cerrar();
+            } finally {
+                scanner.close();
+            }
+        }
     }
 
     private static void mostrarMenu() {
@@ -153,7 +161,7 @@ public class Main {
 
             System.out.print("Ingrese precio unitario: ");
             double precio = Double.parseDouble(scanner.nextLine().trim());
-            if (precio <= 0) {
+            if (!Double.isFinite(precio) || precio <= 0) {
                 System.out.println("El precio unitario debe ser mayor a 0.");
                 return;
             }
@@ -192,7 +200,6 @@ public class Main {
             factura.setEstado(true);
 
             List<DetalleFactura> detalles = new ArrayList<>();
-            double totalFactura = 0;
             String continuar = "S";
 
             do {
@@ -215,12 +222,10 @@ public class Main {
                         DetalleFactura detalle = new DetalleFactura();
                         detalle.setProducto(producto);
                         detalle.setCantidad(cantidad);
-                        double subtotal = cantidad * producto.getPrecioUnitario();
-                        detalle.setSubtotal(subtotal);
-                        
+                        double subtotal = detalle.calcularSubTotal();
+
 
                         detalles.add(detalle);
-                        totalFactura += subtotal;
                         System.out.println("Producto agregado. Subtotal: $" + subtotal);
                     }
                 }
@@ -234,15 +239,11 @@ public class Main {
                 return;
             }
 
-            for (DetalleFactura det : detalles) {
-             detalleDao.guardarDetalle(det);
-            }
-
             factura.setDetalles(detalles);
-            factura.setTotal(totalFactura);
+            factura.calcularTotal();
 
             facturaDao.guardarFactura(factura);
-            System.out.println("Venta registrada con éxito. Total de la factura: $" + totalFactura);
+            System.out.println("Venta registrada con éxito. Total de la factura: $" + factura.getTotal());
 
         } catch (NumberFormatException e) {
             System.out.println("Error: Ingresó un formato numérico inválido para ID o cantidad.");

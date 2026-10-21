@@ -3,24 +3,27 @@ package ar.edu.unju.escmi.config;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-
 public class EmfSingleton {
+    private static final EmfSingleton miInstancia = new EmfSingleton();
+    private static final String PERSISTENCE_UNIT_NAME = "TestPersistence";
+    private EntityManagerFactory emf;
 
-	private static EmfSingleton miInstancia = new EmfSingleton();
-	private static final String PERSISTENCE_UNIT_NAME = "TestPersistence";
-	private EntityManagerFactory emf = null;
-	
-	private EmfSingleton() {
-		
-	}
-	
-	public static EmfSingleton getInstance() {
-		return miInstancia;
-	}
-	
-	public EntityManagerFactory getEmf() {
-		if(this.emf == null) 
-			this.emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-		return this.emf;
-	}
+    private EmfSingleton() {}
+
+    public static EmfSingleton getInstance() {
+        return miInstancia;
+    }
+
+    public EntityManagerFactory getEmf() {
+        if (emf == null || !emf.isOpen()) {
+            emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
+        }
+        return emf;
+    }
+
+    public void cerrar() {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+    }
 }
