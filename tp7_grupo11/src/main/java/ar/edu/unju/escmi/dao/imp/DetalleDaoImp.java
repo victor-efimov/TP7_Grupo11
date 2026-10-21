@@ -22,7 +22,7 @@ public void guardarDetalle(DetalleFactura detalle) {
 		}
 		System.out.println("No se pudo guardar el detalle");
 	} finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override
@@ -37,7 +37,7 @@ public void borrarDetalle(DetalleFactura detalle) {
 		}
 		System.out.println("No se pudo borrar la factura");
 	}finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override

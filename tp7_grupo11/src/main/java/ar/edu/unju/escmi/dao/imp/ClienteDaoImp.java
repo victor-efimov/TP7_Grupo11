@@ -23,7 +23,7 @@ public void guardarCliente(Cliente cliente) {
 		}
 		System.out.println("No se pudo guardar el detalle");
 	} finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override
@@ -38,7 +38,7 @@ public void borrarCliente(Cliente cliente) {
 		}
 		System.out.println("No se pudo borrar la factura");
 	}finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override
@@ -96,7 +96,7 @@ public void modificarCliente(Long mod) {
 			System.out.println("No se pudo modificar el cliente");
 		}finally {
 			sc.close();
-			manager.close();
+			//manager.close();
 		}
 	}
 }

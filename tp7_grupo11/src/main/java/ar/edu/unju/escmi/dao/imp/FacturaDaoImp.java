@@ -22,7 +22,7 @@ public void guardarFactura(Factura factura) {
 		}
 		System.out.println("No se pudo guardar la factura");
 	} finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override
@@ -37,7 +37,7 @@ public void borrarFactura(Factura factura) {
 		}
 		System.out.println("No se pudo borrar la factura");
 	}finally {
-		manager.close();
+		//manager.close();
 	}
 }
 @Override
