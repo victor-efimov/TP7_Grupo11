@@ -58,9 +58,30 @@ public class ProductoDaoImp implements IProductoDao {
         }
     }
 
-    @Override
+        @Override
     public void modificarPrecio(Long idProducto, double nuevoPrecio) {
-        // Pendiente: implementar la modificación del precio del producto.
-        throw new UnsupportedOperationException("Modificación de precio pendiente de implementación.");
+        EntityManager manager = EmfSingleton.getInstance().getEmf().createEntityManager();
+        try {
+            manager.getTransaction().begin();
+            if (idProducto == null) {
+                throw new IllegalArgumentException("Debe indicar un producto existente.");
+            }
+            if (!Double.isFinite(nuevoPrecio) || nuevoPrecio <= 0) {
+                throw new IllegalArgumentException("El precio debe ser mayor a cero.");
+            }
+            Producto existente = manager.find(Producto.class, idProducto);
+            if (existente == null || !existente.isEstado()) {
+                throw new IllegalArgumentException("El producto no existe o está dado de baja.");
+            }
+            existente.setPrecioUnitario(nuevoPrecio);
+            manager.getTransaction().commit();
+        } catch (RuntimeException e) {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            throw new IllegalStateException("No se pudo modificar el precio.", e);
+        } finally {
+            manager.close();
+        }
     }
 }

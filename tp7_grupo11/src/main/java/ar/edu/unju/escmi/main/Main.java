@@ -51,36 +51,28 @@ public class Main {
                             buscarFacturaPorId();
                             break;
                         case 5:
-
-                            System.out.println("Opción 5 pendiente de implementación.");
+                            eliminarFactura();
                             break;
                         case 6:
-
-                            System.out.println("Opción 6 pendiente de implementación.");
+                            eliminarProducto();
                             break;
                         case 7:
-
-                            System.out.println("Opción 7 pendiente de implementación.");
+                            modificarCliente();
                             break;
                         case 8:
-
-                            System.out.println("Opción 8 pendiente de implementación.");
+                            modificarPrecioProducto();
                             break;
                         case 9:
-
-                            System.out.println("Opción 9 pendiente de implementación.");
+                            eliminarCliente();
                             break;
                         case 10:
-
-                            System.out.println("Opción 10 pendiente de implementación.");
+                            mostrarFacturas();
                             break;
                         case 11:
-
-                            System.out.println("Opción 11 pendiente de implementación.");
+                            mostrarClientes();
                             break;
                         case 12:
-
-                            System.out.println("Opción 12 pendiente de implementación.");
+                            mostrarFacturasMayores900();
                             break;
                         case 0:
                             System.out.println("Saliendo del sistema...");
@@ -281,9 +273,192 @@ public class Main {
                 System.out.println("========================================");
             }
         } catch (NumberFormatException e) {
-            System.out.println("Error: El número de factura debe ser un entero válido.");
+            System.out.println("Error: El numero de factura debe ser un entero valido.");
         } catch (Exception e) {
             System.out.println("Error al buscar la factura: " + e.getMessage());
         }
+    }
+        private static void eliminarFactura() {
+        try {
+            System.out.println("\n--- ELIMINAR FACTURA (BAJA LOGICA) ---");
+            System.out.print("Ingrese el ID de la factura: ");
+            Long id = Long.parseLong(scanner.nextLine().trim());
+
+            Factura factura = facturaDao.buscarFactura(id);
+            if (factura == null || !factura.isEstado()) {
+                System.out.println("No existe una factura activa con ese ID.");
+                return;
+            }
+            facturaDao.borrarFactura(factura);
+            System.out.println("Factura eliminada con exito.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El ID debe ser un núuero entero valido.");
+        } catch (Exception e) {
+            System.out.println("Error al eliminar la factura: " + e.getMessage());
+        }
+    }
+
+    private static void eliminarProducto() {
+        try {
+            System.out.println("\n--- ELIMINAR PRODUCTO (BAJA LOGICA) ---");
+            System.out.print("Ingrese el ID del producto: ");
+            Long id = Long.parseLong(scanner.nextLine().trim());
+
+            Producto producto = productoDao.obtenerProductos().stream()
+                    .filter(p -> id.equals(p.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (producto == null || !producto.isEstado()) {
+                System.out.println("No existe un producto activo con ese ID.");
+                return;
+            }
+            productoDao.borrarProducto(producto);
+            System.out.println("Producto eliminado.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El ID debe ser un numero entero valido.");
+        } catch (Exception e) {
+            System.out.println("Error al eliminar el producto: " + e.getMessage());
+        }
+    }
+
+    private static void modificarCliente() {
+        try {
+            System.out.println("\n--- MODIFICAR CLIENTE ---");
+            System.out.print("Ingrese el ID del cliente: ");
+            Long id = Long.parseLong(scanner.nextLine().trim());
+
+            Cliente cliente = clienteDao.obtenerClientes().stream()
+                    .filter(c -> id.equals(c.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (cliente == null || !cliente.isEstado()) {
+                System.out.println("No existe un cliente activo con ese ID.");
+                return;
+            }
+
+            System.out.print("Nuevo nombre (" + cliente.getNombre() + "): ");
+            String nombre = scanner.nextLine().trim();
+            if (!nombre.isEmpty()) cliente.setNombre(nombre);
+
+            System.out.print("Nuevo apellido (" + cliente.getApellido() + "): ");
+            String apellido = scanner.nextLine().trim();
+            if (!apellido.isEmpty()) cliente.setApellido(apellido);
+
+            System.out.print("Nuevo domicilio (" + cliente.getDomicilio() + "): ");
+            String domicilio = scanner.nextLine().trim();
+            if (!domicilio.isEmpty()) cliente.setDomicilio(domicilio);
+
+            System.out.print("Nuevo DNI (" + cliente.getDni() + "): ");
+            String dni = scanner.nextLine().trim();
+            if (!dni.isEmpty()) cliente.setDni(Integer.parseInt(dni));
+
+            clienteDao.modificarCliente(cliente);
+            System.out.println("Cliente modificado con exito.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Ingreso un número invalido (ID o DNI).");
+        } catch (Exception e) {
+            System.out.println("Error al modificar el cliente: " + e.getMessage());
+        }
+    }
+
+    private static void modificarPrecioProducto() {
+        try {
+            System.out.println("\n--- MODIFICAR PRECIO DE PRODUCTO ---");
+            System.out.print("Ingrese el ID del producto: ");
+            Long id = Long.parseLong(scanner.nextLine().trim());
+
+            Producto producto = productoDao.obtenerProductos().stream()
+                    .filter(p -> id.equals(p.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (producto == null || !producto.isEstado()) {
+                System.out.println("No existe un producto activo con ese ID.");
+                return;
+            }
+
+            System.out.print("Nuevo precio (actual $" + producto.getPrecioUnitario() + "): ");
+            double precio = Double.parseDouble(scanner.nextLine().trim());
+            if (!Double.isFinite(precio) || precio <= 0) {
+                System.out.println("El precio debe ser mayor a 0.");
+                return;
+            }
+            productoDao.modificarPrecio(id, precio);
+            System.out.println("Precio modificado con exito.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Ingreso un nimero invalido.");
+        } catch (Exception e) {
+            System.out.println("Error al modificar el precio: " + e.getMessage());
+        }
+    }
+
+    private static void eliminarCliente() {
+        try {
+            System.out.println("\n--- ELIMINAR CLIENTE (BAJA LOGICA) ---");
+            System.out.print("Ingrese el ID del cliente: ");
+            Long id = Long.parseLong(scanner.nextLine().trim());
+
+            Cliente cliente = clienteDao.obtenerClientes().stream()
+                    .filter(c -> id.equals(c.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (cliente == null || !cliente.isEstado()) {
+                System.out.println("No existe un cliente activo con ese ID.");
+                return;
+            }
+            clienteDao.borrarCliente(cliente);
+            System.out.println("Cliente eliminado con exito.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El ID debe ser un numero entero valido.");
+        } catch (Exception e) {
+            System.out.println("Error al eliminar el cliente: " + e.getMessage());
+        }
+    }
+
+    private static void mostrarFacturas() {
+        try {
+            System.out.println("\n--- TODAS LAS FACTURAS ---");
+            imprimirFacturas(facturaDao.obtenerFacturas());
+        } catch (Exception e) {
+            System.out.println("Error al mostrar las facturas: " + e.getMessage());
+        }
+    }
+
+    private static void mostrarClientes() {
+        try {
+            System.out.println("\n--- TODOS LOS CLIENTES ---");
+            boolean hay = false;
+            for (Cliente c : clienteDao.obtenerClientes()) {
+                if (c.isEstado()) {
+                    hay = true;
+                    System.out.println("ID: " + c.getId() + " | " + c.getNombre() + " " + c.getApellido()
+                            + " | DNI: " + c.getDni() + " | Domicilio: " + c.getDomicilio());
+                }
+            }
+            if (!hay) System.out.println("No hay clientes activos.");
+        } catch (Exception e) {
+            System.out.println("Error al mostrar los clientes: " + e.getMessage());
+        }
+    }
+
+    private static void mostrarFacturasMayores900() {
+        try {
+            System.out.println("\n--- FACTURAS CON TOTAL MAYOR A $900.000 ---");
+            imprimirFacturas(facturaDao.obtenerFacturas900());
+        } catch (Exception e) {
+            System.out.println("Error al mostrar las facturas: " + e.getMessage());
+        }
+    }
+
+    private static void imprimirFacturas(List<Factura> facturas) {
+        boolean hay = false;
+        for (Factura f : facturas) {
+            if (f.isEstado()) {
+                hay = true;
+                System.out.println("Factura N " + f.getId() + " | Fecha: " + f.getFecha()
+                        + " | Cliente: " + f.getCliente().getNombre() + " " + f.getCliente().getApellido()
+                        + " | Total: $" + f.getTotal());
+            }
+        }
+        if (!hay) System.out.println("No hay facturas para mostrar.");
     }
 }
